@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Card - Hewan Lucu</title>
+    <style>
+        /* Reset dan Styling Dasar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: url('https://img.freepik.com/free-vector/cute-animal-pattern-background-doodle-style_53876-117622.jpg') center/cover no-repeat fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: -1;
+        }
+        
+        h1 {
+            color: #5a3d2b;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            font-size: 2.8rem;
+            animation: bounce 2s infinite;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 3px dashed #5a3d2b;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 500px;
+            max-width: 100%;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid #5a3d2b;
+        }
+        
+        .game-info div {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #5a3d2b;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        .memory-game {
+            width: 500px;
+            height: 500px;
+            margin: auto;
+            display: flex;
+            flex-wrap: wrap;
+            perspective: 1000px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border: 3px solid #5a3d2b;
+        }
+        
+        .memory-card {
+            width: calc(25% - 10px);
+            height: calc(33.333% - 10px);
+            margin: 5px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .memory-card:active {
+            transform: scale(0.95);
+            transition: transform 0.2s;
+        }
+        
+        .memory-card.flip {
+            transform: rotateY(180deg);
+        }
+        
+        .front-face,
+        .back-face {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            position: absolute;
+            border-radius: 10px;
+            backface-visibility: hidden;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .front-face {
+            transform: rotateY(180deg);
+            background: linear-gradient(45deg, #f8d5a3 0%, #f4b393 100%);
+            border: 2px solid #5a3d2b;
+        }
+        
+        .back-face {
+            background: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
+            font-size: 30px;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            border: 2px solid #5a3d2b;
+        }
+        
+        .front-face img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+        
+        .win-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: white;
+            animation: fadeIn 0.5s;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .win-message h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+        }
+        
+        .win-message p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+        
+        .restart-btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #5a3d2b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border: 2px solid #f8d5a3;
+        }
+        
+        .restart-btn:hover {
+            background: #f4b393;
+            color: #5a3d2b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .restart-btn:active {
+            transform: translateY(1px);
+        }
+        
+        @media (max-width: 550px) {
+            .memory-game {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1/1;
+            }
+            
+            .game-info {
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>MEMORY CARD GAME</h1>
+    
+    <div class="game-info">
+        <div>GERAKAN: <span id="moves">0</span></div>
+        <div>WAKTU: <span id="timer">0</span>s</div>
+        <div>PASANGAN: <span id="pairs">0</span>/8</div>
+    </div>
+    
+    <div class="memory-game"></div>
+    
+    <div class="win-message">
+        <h2>SELAMAT! ANDA MENANG!</h2>
+        <p>Anda menyelesaikan game dalam <span id="final-moves">0</span> gerakan dan <span id="final-time">0</span> detik!</p>
+        <button class="restart-btn">MAIN LAGI</button>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = [
+                { name: 'anjing', img: 'https://cdn-icons-png.flaticon.com/512/616/616408.png' },
+                { name: 'kucing', img: 'https://cdn-icons-png.flaticon.com/512/616/616430.png' },
+                { name: 'burung', img: 'https://cdn-icons-png.flaticon.com/512/616/616490.png' },
+                { name: 'kelinci', img: 'https://cdn-icons-png.flaticon.com/512/3069/3069172.png' },
+                { name: 'panda', img: 'https://cdn-icons-png.flaticon.com/512/3069/3069194.png' },
+                { name: 'rubah', img: 'https://cdn-icons-png.flaticon.com/512/3069/3069208.png' },
+                { name: 'koala', img: 'https://cdn-icons-png.flaticon.com/512/3069/3069212.png' },
+                { name: 'jerapah', img: 'https://cdn-icons-png.flaticon.com/512/3069/3069241.png' }
+            ];
+            
+            // Duplikat kartu untuk membuat pasangan
+            const gameCards = [...cards, ...cards];
+            
+            // Acak urutan kartu
+            gameCards.sort(() => 0.5 - Math.random());
+            
+            const gameBoard = document.querySelector('.memory-game');
+            const movesDisplay = document.getElementById('moves');
+            const timerDisplay = document.getElementById('timer');
+            const pairsDisplay = document.getElementById('pairs');
+            const winMessage = document.querySelector('.win-message');
+            const finalMoves = document.getElementById('final-moves');
+            const finalTime = document.getElementById('final-time');
+            const restartBtn = document.querySelector('.restart-btn');
+            
+            let hasFlippedCard = false;
+            let lockBoard = false;
+            let firstCard, secondCard;
+            let moves = 0;
+            let pairsFound = 0;
+            let timer;
+            let seconds = 0;
+            
+            // Buat kartu di papan permainan
+            function createBoard() {
+                gameBoard.innerHTML = '';
+                gameCards.forEach((card, index) => {
+                    const memoryCard = document.createElement('div');
+                    memoryCard.classList.add('memory-card');
+                    memoryCard.dataset.name = card.name;
+                    
+                    const frontFace = document.createElement('div');
+                    frontFace.classList.add('front-face');
+                    const frontImg = document.createElement('img');
+                    frontImg.src = card.img;
+                    frontImg.alt = card.name;
+                    frontFace.appendChild(frontImg);
+                    
+                    const backFace = document.createElement('div');
+                    backFace.classList.add('back-face');
+                    backFace.textContent = '?';
+                    
+                    memoryCard.appendChild(frontFace);
+                    memoryCard.appendChild(backFace);
+                    
+                    memoryCard.addEventListener('click', flipCard);
+                    
+                    gameBoard.appendChild(memoryCard);
+                });
+            }
+            
+            // Balik kartu
+            function flipCard() {
+                if (lockBoard) return;
+                if (this === firstCard) return;
+                
+                this.classList.add('flip');
+                
+                if (!hasFlippedCard) {
+                    // Klik pertama
+                    hasFlippedCard = true;
+                    firstCard = this;
+                    
+                    // Mulai timer saat kartu pertama diklik
+                    if (moves === 0) {
+                        startTimer();
+                    }
+                    
+                    return;
+                }
+                
+                // Klik kedua
+                secondCard = this;
+                moves++;
+                movesDisplay.textContent = moves;
+                
+                checkForMatch();
+            }
+            
+            // Cek kecocokan kartu
+            function checkForMatch() {
+                const isMatch = firstCard.dataset.name === secondCard.dataset.name;
+                
+                if (isMatch) {
+                    disableCards();
+                    pairsFound++;
+                    pairsDisplay.textContent = pairsFound;
+                    
+                    // Cek apakah permainan selesai
+                    if (pairsFound === cards.length) {
+                        endGame();
+                    }
+                } else {
+                    unflipCards();
+                }
+            }
+            
+            // Nonaktifkan kartu yang sudah cocok
+            function disableCards() {
+                firstCard.removeEventListener('click', flipCard);
+                secondCard.removeEventListener('click', flipCard);
+                
+                // Animasi saat kartu cocok
+                firstCard.querySelector('.front-face').style.transform = 'scale(1.1)';
+                secondCard.querySelector('.front-face').style.transform = 'scale(1.1)';
+                
+                setTimeout(() => {
+                    firstCard.querySelector('.front-face').style.transform = 'scale(1)';
+                    secondCard.querySelector('.front-face').style.transform = 'scale(1)';
+                    resetBoard();
+                }, 300);
+            }
+            
+            // Kembalikan kartu yang tidak cocok
+            function unflipCards() {
+                lockBoard = true;
+                
+                // Animasi saat kartu tidak cocok
+                firstCard.style.transform = 'rotateY(180deg) translateX(5px)';
+                secondCard.style.transform = 'rotateY(180deg) translateX(-5px)';
+                
+                setTimeout(() => {
+                    firstCard.style.transform = 'rotateY(180deg)';
+                    secondCard.style.transform = 'rotateY(180deg)';
+                }, 100);
+                
+                setTimeout(() => {
+                    firstCard.classList.remove('flip');
+                    secondCard.classList.remove('flip');
+                    
+                    // Reset posisi kartu setelah animasi selesai
+                    setTimeout(() => {
+                        firstCard.style.transform = '';
+                        secondCard.style.transform = '';
+                        resetBoard();
+                    }, 500);
+                }, 1000);
+            }
+            
+            // Reset board setelah setiap putaran
+            function resetBoard() {
+                [hasFlippedCard, lockBoard] = [false, false];
+                [firstCard, secondCard] = [null, null];
+            }
+            
+            // Timer
+            function startTimer() {
+                timer = setInterval(() => {
+                    seconds++;
+                    timerDisplay.textContent = seconds;
+                }, 1000);
+            }
+            
+            // Akhiri permainan
+            function endGame() {
+                clearInterval(timer);
+                finalMoves.textContent = moves;
+                finalTime.textContent = seconds;
+                
+                // Animasi kemenangan
+                setTimeout(() => {
+                    winMessage.style.display = 'flex';
+                }, 1000);
+            }
+            
+            // Restart permainan
+            function restartGame() {
+                // Reset variabel permainan
+                moves = 0;
+                pairsFound = 0;
+                seconds = 0;
+                movesDisplay.textContent = moves;
+                pairsDisplay.textContent = pairsFound;
+                timerDisplay.textContent = seconds;
+                
+                // Hentikan timer jika sedang berjalan
+                clearInterval(timer);
+                
+                // Sembunyikan pesan kemenangan
+                winMessage.style.display = 'none';
+                
+                // Acak ulang kartu dan buat papan baru
+                gameCards.sort(() => 0.5 - Math.random());
+                createBoard();
+                
+                // Reset board
+                resetBoard();
+            }
+            
+            // Event listener untuk tombol restart
+            restartBtn.addEventListener('click', restartGame);
+            
+            // Mulai permainan pertama kali
+            createBoard();
+        });
+    </script>
+</body>
+</html>
